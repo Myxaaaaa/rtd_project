@@ -1,0 +1,32 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Запустить сайт (Live Server)",
+      "type": "shell",
+      "command": "echo Запуск Live Server... Откройте палитру: Live Server: Open with Live Server",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Открыть сайт в браузере",
+      "type": "shell",
+      "command": "start",
+      "args": ["", "${workspaceFolder}/index.html"],
+      "windows": {
+        "command": "cmd",
+        "args": ["/c", "start", "", "${workspaceFolder}\\index.html"]
+      },
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared"
+      }
+    }
+  ]
+}
