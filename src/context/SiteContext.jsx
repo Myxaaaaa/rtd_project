@@ -1,16 +1,20 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
+  adminLoginApi,
   clearAdminSession,
   clearLeadsOnApi,
   deleteLeadOnApi,
+  fetchAdminSiteDataFromApi,
   fetchLeadsFromApi,
   fetchSiteDataFromApi,
+  fetchTelegramStatus,
   hasAdminSession,
   isApiAvailable,
   resetSiteDataOnApi,
   saveSiteDataToApi,
   setAdminSession,
   submitLeadToApi,
+  testTelegramConnection,
 } from "../api/client";
 import {
   addSubmission,
@@ -26,7 +30,7 @@ import {
   saveSiteData,
   verifyPassword,
 } from "../data/store";
-import { DEFAULT_DATA, DEFAULT_PASSWORD } from "../data/defaultData";
+import { DEFAULT_PASSWORD } from "../data/defaultData";
 
 const SiteContext = createContext(null);
 
@@ -51,8 +55,13 @@ export function SiteProvider({ children }) {
 
       if (apiOk) {
         try {
-          const remote = await fetchSiteDataFromApi();
-          if (active) setData(remote);
+          if (hasAdminSession()) {
+            const full = await fetchAdminSiteDataFromApi();
+            if (active) setData(full);
+          } else {
+            const remote = await fetchSiteDataFromApi();
+            if (active) setData({ ...loadSiteData(), ...remote, adminPassword: loadSiteData().adminPassword, telegram: loadSiteData().telegram });
+          }
         } catch {
           if (active) setData(loadSiteData());
         }
@@ -86,31 +95,30 @@ export function SiteProvider({ children }) {
       useApi,
       login: async (password) => {
         const trimmed = String(password).trim();
-        let valid = verifyPassword(trimmed);
         if (useApi) {
           try {
-            const remote = await fetchSiteDataFromApi();
-            setData(remote);
-            valid = trimmed === (remote.adminPassword || DEFAULT_PASSWORD);
+            const result = await adminLoginApi(trimmed);
+            setAdminSession(trimmed);
+            setIsAdmin(true);
+            setData(result.data);
+            setSubmissions(await fetchLeadsFromApi());
+            return true;
           } catch {
-            valid = verifyPassword(trimmed);
+            return false;
           }
         }
-        if (!valid) return false;
+        if (!verifyPassword(trimmed)) return false;
         setAdminSession(trimmed);
         setIsAdmin(true);
-        if (useApi) {
-          try {
-            setSubmissions(await fetchLeadsFromApi());
-          } catch {
-            setSubmissions([]);
-          }
-        }
+        setSubmissions(getSubmissions());
         return true;
       },
       logout: () => {
         clearAdminSession();
         setIsAdmin(false);
+        if (useApi) {
+          fetchSiteDataFromApi().then((publicData) => setData((prev) => ({ ...publicData, adminPassword: prev.adminPassword, telegram: prev.telegram }))).catch(() => {});
+        }
       },
       resetPassword: async () => {
         resetAdminPassword();
@@ -160,7 +168,7 @@ export function SiteProvider({ children }) {
       submitLead: async (entry) => {
         if (useApi) {
           const lead = await submitLeadToApi(entry);
-          setSubmissions((prev) => [lead, ...prev]);
+          if (isAdmin) setSubmissions((prev) => [lead, ...prev]);
           return;
         }
         setSubmissions(addSubmission(entry));
@@ -180,6 +188,16 @@ export function SiteProvider({ children }) {
         clearSubmissions();
         setSubmissions([]);
       },
+      testTelegram: async (telegram) => {
+        if (!useApi) throw new Error("Telegram работает только на сервере (Railway)");
+        const result = await testTelegramConnection(telegram);
+        setData((prev) => ({ ...prev, telegram: result.telegram }));
+        return result;
+      },
+      getTelegramStatus: async () => {
+        if (!useApi) return { connected: false, enabled: false };
+        return fetchTelegramStatus();
+      },
       defaultPassword: DEFAULT_PASSWORD,
     }),
     [data, submissions, isAdmin, ready, useApi]
@@ -187,8 +205,9 @@ export function SiteProvider({ children }) {
 
   if (!ready) {
     return (
-      <div style={{ minHeight: "100vh", display: "grid", placeItems: "center", background: "#0f172a", color: "#fff" }}>
-        LifeGift…
+      <div className="lg-loader">
+        <div className="lg-loader-mark">LG</div>
+        <p>LifeGift</p>
       </div>
     );
   }

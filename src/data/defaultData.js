@@ -14,6 +14,11 @@ export const DEFAULT_DATA = {
     email: "info@lifegift.kg",
   },
   adminPassword: "admin123",
+  telegram: {
+    enabled: false,
+    botToken: "",
+    chatId: "",
+  },
   ru: {
     meta: {
       title: "Суррогатное материнство в Бишкеке | LifeGift",

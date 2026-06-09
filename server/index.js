@@ -6,11 +6,13 @@ import {
   clearLeads,
   deleteLead,
   getLeads,
+  getPublicSiteData,
   getSiteData,
   resetSiteData,
   saveSiteData,
   verifyAdminPassword,
 } from "./storage.js";
+import { notifyLeadTelegram, sendTelegramMessage } from "./telegram.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
@@ -28,10 +30,22 @@ function requireAdmin(req, res, next) {
 }
 
 app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, service: "lifegift" });
+  res.json({ ok: true, service: "lifegift", server: true });
 });
 
 app.get("/api/site-data", (_req, res) => {
+  res.json(getPublicSiteData());
+});
+
+app.post("/api/admin/login", (req, res) => {
+  const password = String(req.body?.password || "").trim();
+  if (!verifyAdminPassword(password)) {
+    return res.status(401).json({ error: "Неверный пароль" });
+  }
+  res.json({ ok: true, data: getSiteData() });
+});
+
+app.get("/api/admin/site-data", requireAdmin, (_req, res) => {
   res.json(getSiteData());
 });
 
@@ -52,7 +66,7 @@ app.get("/api/leads", requireAdmin, (_req, res) => {
   res.json(getLeads());
 });
 
-app.post("/api/leads", (req, res) => {
+app.post("/api/leads", async (req, res) => {
   const { name, phone, email, message, lang } = req.body || {};
   if (!name?.trim() || !phone?.trim()) {
     return res.status(400).json({ error: "Name and phone required" });
@@ -64,6 +78,14 @@ app.post("/api/leads", (req, res) => {
     message: message?.trim() || "",
     lang: lang || "ru",
   });
+
+  try {
+    const site = getSiteData();
+    await notifyLeadTelegram(site.telegram, lead);
+  } catch (err) {
+    console.error("Telegram notify failed:", err.message);
+  }
+
   res.status(201).json(lead);
 });
 
@@ -76,6 +98,41 @@ app.delete("/api/leads", requireAdmin, (_req, res) => {
   clearLeads();
   res.json([]);
 });
+
+app.get("/api/telegram/status", requireAdmin, (_req, res) => {
+  const { telegram } = getSiteData();
+  res.json({
+    enabled: Boolean(telegram?.enabled),
+    connected: Boolean(telegram?.enabled && telegram?.botToken && telegram?.chatId),
+    chatId: telegram?.chatId ? maskChatId(telegram.chatId) : "",
+    hasToken: Boolean(telegram?.botToken),
+  });
+});
+
+app.post("/api/telegram/test", requireAdmin, async (req, res) => {
+  try {
+    const site = getSiteData();
+    const telegram = { ...site.telegram, ...req.body?.telegram };
+    await sendTelegramMessage(
+      telegram.botToken,
+      telegram.chatId,
+      "✅ <b>LifeGift</b>\n\nTelegram успешно связан с сайтом. Заявки будут приходить сюда."
+    );
+    const saved = saveSiteData({
+      ...site,
+      telegram: { ...telegram, enabled: true },
+    });
+    res.json({ ok: true, telegram: saved.telegram });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+function maskChatId(id) {
+  const s = String(id);
+  if (s.length <= 4) return "****";
+  return `${s.slice(0, 2)}***${s.slice(-2)}`;
+}
 
 app.use(express.static(distPath));
 

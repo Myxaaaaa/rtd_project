@@ -17,6 +17,20 @@ export async function fetchSiteDataFromApi() {
   return parseJson(res);
 }
 
+export async function adminLoginApi(password) {
+  const res = await fetch("/api/admin/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  });
+  return parseJson(res);
+}
+
+export async function fetchAdminSiteDataFromApi() {
+  const res = await fetch("/api/admin/site-data", { headers: adminHeaders() });
+  return parseJson(res);
+}
+
 export async function saveSiteDataToApi(data) {
   const res = await fetch("/api/site-data", {
     method: "PUT",
@@ -60,6 +74,20 @@ export async function clearLeadsOnApi() {
   const res = await fetch("/api/leads", {
     method: "DELETE",
     headers: adminHeaders(),
+  });
+  return parseJson(res);
+}
+
+export async function fetchTelegramStatus() {
+  const res = await fetch("/api/telegram/status", { headers: adminHeaders() });
+  return parseJson(res);
+}
+
+export async function testTelegramConnection(telegram) {
+  const res = await fetch("/api/telegram/test", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...adminHeaders() },
+    body: JSON.stringify({ telegram }),
   });
   return parseJson(res);
 }

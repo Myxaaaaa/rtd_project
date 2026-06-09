@@ -32,6 +32,7 @@ function deepMerge(base, patch) {
 export function normalizeData(raw) {
   const merged = deepMerge(DEFAULT_DATA, raw || {});
   if (!merged.adminPassword) merged.adminPassword = DEFAULT_PASSWORD;
+  if (!merged.telegram) merged.telegram = clone(DEFAULT_DATA.telegram);
   return merged;
 }
 
