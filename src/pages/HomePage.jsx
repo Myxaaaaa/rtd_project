@@ -276,7 +276,6 @@ export default function HomePage() {
             <a href={`mailto:${data.contacts.email}`}>{data.contacts.email}</a>
           </div>
           <div className="footer-copy">{L.footer.copyright}</div>
-          <Link className="admin-link" to="/admin">Admin</Link>
         </div>
         <div className="footer-seo">{L.footer.seo}</div>
       </footer>

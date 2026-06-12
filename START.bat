@@ -8,7 +8,6 @@ echo  LifeGift — локальный запуск
 echo  Сайт:    http://localhost:5173
 echo  API:     http://localhost:3000
 echo  Админка: http://localhost:5173/admin
-echo  Пароль:  admin123
 echo.
 
 if not exist "node_modules" (

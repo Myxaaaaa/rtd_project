@@ -58,7 +58,9 @@ function deepMerge(base, patch) {
 
 export function normalizeData(raw) {
   const merged = deepMerge(DEFAULT_DATA, raw || {});
-  if (!merged.adminPassword) merged.adminPassword = DEFAULT_PASSWORD;
+  if (!merged.adminPassword) {
+    merged.adminPassword = process.env.ADMIN_PASSWORD?.trim() || DEFAULT_PASSWORD;
+  }
   if (!merged.telegram) merged.telegram = clone(DEFAULT_DATA.telegram);
   return merged;
 }
@@ -85,9 +87,15 @@ export function resetSiteData() {
   return fresh;
 }
 
+function resolveAdminPassword(data) {
+  const stored = data.adminPassword || DEFAULT_PASSWORD;
+  if (stored !== DEFAULT_PASSWORD) return stored;
+  return process.env.ADMIN_PASSWORD?.trim() || stored;
+}
+
 export function verifyAdminPassword(password) {
   const data = getSiteData();
-  return String(password || "").trim() === (data.adminPassword || DEFAULT_PASSWORD);
+  return String(password || "").trim() === resolveAdminPassword(data);
 }
 
 export function getLeads() {

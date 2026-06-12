@@ -15,28 +15,19 @@ const TABS = [
 ];
 
 function LoginForm() {
-  const { login, resetPassword, defaultPassword } = useSite();
+  const { login } = useSite();
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError("");
-    setInfo("");
     setLoading(true);
     const ok = await login(password);
     setLoading(false);
     if (ok) return;
-    setError(`Неверный пароль. Попробуйте ${defaultPassword}`);
-  }
-
-  function handleReset() {
-    resetPassword();
-    setPassword(defaultPassword);
-    setInfo(`Пароль сброшен на ${defaultPassword}. Нажмите «Войти».`);
-    setError("");
+    setError("Неверный пароль");
   }
 
   return (
@@ -65,11 +56,7 @@ function LoginForm() {
         <button type="submit" className="adm-btn adm-btn-primary" disabled={loading}>
           {loading ? "Вход…" : "Войти"}
         </button>
-        <button type="button" className="adm-btn adm-btn-ghost" onClick={handleReset}>
-          Сбросить пароль на {defaultPassword}
-        </button>
         {error && <p className="adm-msg-error">{error}</p>}
-        {info && <p className="adm-msg-success">{info}</p>}
         <Link to="/" className="adm-back-link">← Вернуться на сайт</Link>
       </form>
     </div>

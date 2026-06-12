@@ -30,8 +30,6 @@ import {
   saveSiteData,
   verifyPassword,
 } from "../data/store";
-import { DEFAULT_PASSWORD } from "../data/defaultData";
-
 const SiteContext = createContext(null);
 
 export function SiteProvider({ children }) {
@@ -198,7 +196,6 @@ export function SiteProvider({ children }) {
         if (!useApi) return { connected: false, enabled: false };
         return fetchTelegramStatus();
       },
-      defaultPassword: DEFAULT_PASSWORD,
     }),
     [data, submissions, isAdmin, ready, useApi]
   );
