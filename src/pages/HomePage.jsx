@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import WhatsAppWidget from "../components/WhatsAppWidget";
 import { useSite } from "../context/SiteContext";
 
 export default function HomePage() {
@@ -281,6 +282,8 @@ export default function HomePage() {
       </footer>
 
       {toast && <div className="toast">{toast}</div>}
+
+      <WhatsAppWidget whatsapp={data.whatsapp} lang={lang} />
     </>
   );
 }

@@ -6,7 +6,7 @@ import "../styles/admin.css";
 const TABS = [
   { id: "dashboard", label: "Обзор", icon: "◉", desc: "Статистика и быстрый доступ" },
   { id: "brand", label: "Бренд", icon: "◈", desc: "Название, цвета и тема LifeGift" },
-  { id: "contacts", label: "Контакты", icon: "☎", desc: "Телефон и email на сайте" },
+  { id: "contacts", label: "Контакты", icon: "☎", desc: "Телефон, email и WhatsApp" },
   { id: "ru", label: "Контент RU", icon: "RU", desc: "Русская версия сайта" },
   { id: "kg", label: "Контент KG", icon: "KG", desc: "Кыргызская версия сайта" },
   { id: "submissions", label: "Заявки", icon: "✉", desc: "Заявки с формы сайта" },
@@ -746,18 +746,81 @@ function AdminDashboard() {
           )}
 
           {tab === "contacts" && (
-            <div className="adm-card">
-              <div className="adm-grid">
-                <div className="adm-field">
-                  <label>Телефон</label>
-                  <input value={draft.contacts.phone} onChange={(e) => setDraft({ ...draft, contacts: { ...draft.contacts, phone: e.target.value } })} />
-                </div>
-                <div className="adm-field">
-                  <label>Email</label>
-                  <input value={draft.contacts.email} onChange={(e) => setDraft({ ...draft, contacts: { ...draft.contacts, email: e.target.value } })} />
+            <>
+              <div className="adm-card">
+                <h3>Контакты на сайте</h3>
+                <div className="adm-grid">
+                  <div className="adm-field">
+                    <label>Телефон</label>
+                    <input value={draft.contacts.phone} onChange={(e) => setDraft({ ...draft, contacts: { ...draft.contacts, phone: e.target.value } })} />
+                  </div>
+                  <div className="adm-field">
+                    <label>Email</label>
+                    <input value={draft.contacts.email} onChange={(e) => setDraft({ ...draft, contacts: { ...draft.contacts, email: e.target.value } })} />
+                  </div>
                 </div>
               </div>
-            </div>
+
+              <div className="adm-card">
+                <h3>WhatsApp — плавающая кнопка</h3>
+                <p style={{ fontSize: 13, opacity: 0.75, margin: "0 0 16px" }}>
+                  Зелёная кнопка в правом нижнем углу. При первом визите показывается подсказка с текстом и номером.
+                </p>
+                <label className="adm-toggle" style={{ marginBottom: 16 }}>
+                  <input
+                    type="checkbox"
+                    checked={draft.whatsapp?.enabled !== false}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        whatsapp: { ...draft.whatsapp, enabled: e.target.checked },
+                      })
+                    }
+                  />
+                  <span className="adm-toggle-track" />
+                  <span>Показывать кнопку WhatsApp</span>
+                </label>
+                <div className="adm-field">
+                  <label>Номер WhatsApp</label>
+                  <input
+                    value={draft.whatsapp?.phone || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        whatsapp: { ...draft.whatsapp, phone: e.target.value },
+                      })
+                    }
+                    placeholder="+996 700 000 000"
+                  />
+                </div>
+                <div className="adm-field">
+                  <label>Текст подсказки (RU)</label>
+                  <textarea
+                    value={draft.whatsapp?.hintRu || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        whatsapp: { ...draft.whatsapp, hintRu: e.target.value },
+                      })
+                    }
+                    rows={2}
+                  />
+                </div>
+                <div className="adm-field">
+                  <label>Текст подсказки (KG)</label>
+                  <textarea
+                    value={draft.whatsapp?.hintKg || ""}
+                    onChange={(e) =>
+                      setDraft({
+                        ...draft,
+                        whatsapp: { ...draft.whatsapp, hintKg: e.target.value },
+                      })
+                    }
+                    rows={2}
+                  />
+                </div>
+              </div>
+            </>
           )}
 
           {tab === "ru" && <LangEditor langKey="ru" draft={draft} setDraft={setDraft} />}

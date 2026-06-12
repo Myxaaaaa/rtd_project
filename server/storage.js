@@ -62,6 +62,7 @@ export function normalizeData(raw) {
     merged.adminPassword = process.env.ADMIN_PASSWORD?.trim() || DEFAULT_PASSWORD;
   }
   if (!merged.telegram) merged.telegram = clone(DEFAULT_DATA.telegram);
+  if (!merged.whatsapp) merged.whatsapp = clone(DEFAULT_DATA.whatsapp);
   return merged;
 }
 

@@ -19,6 +19,12 @@ export const DEFAULT_DATA = {
     botToken: "",
     chatId: "",
   },
+  whatsapp: {
+    enabled: true,
+    phone: "+996 700 000 000",
+    hintRu: "Если у вас есть вопросы — вы всегда можете обратиться к нам в WhatsApp",
+    hintKg: "Суроолоруңуз болсо — WhatsApp аркылуу бизге кайрылыңыз",
+  },
   ru: {
     meta: {
       title: "Суррогатное материнство в Бишкеке | LifeGift",

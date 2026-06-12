@@ -33,6 +33,7 @@ export function normalizeData(raw) {
   const merged = deepMerge(DEFAULT_DATA, raw || {});
   if (!merged.adminPassword) merged.adminPassword = DEFAULT_PASSWORD;
   if (!merged.telegram) merged.telegram = clone(DEFAULT_DATA.telegram);
+  if (!merged.whatsapp) merged.whatsapp = clone(DEFAULT_DATA.whatsapp);
   return merged;
 }
 
