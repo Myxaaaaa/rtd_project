@@ -77,7 +77,21 @@ export function getSiteData() {
 }
 
 export function saveSiteData(data) {
+  const existing = getSiteData();
   const normalized = normalizeData(data);
+  if (existing.telegram?.botToken && !normalized.telegram?.botToken) {
+    normalized.telegram = {
+      ...existing.telegram,
+      ...normalized.telegram,
+      botToken: existing.telegram.botToken,
+    };
+  }
+  if (existing.telegram?.chatId && !normalized.telegram?.chatId) {
+    normalized.telegram = {
+      ...normalized.telegram,
+      chatId: existing.telegram.chatId,
+    };
+  }
   writeJson(SITE_FILE, normalized);
   return normalized;
 }

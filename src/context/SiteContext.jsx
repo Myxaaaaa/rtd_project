@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import {
   adminLoginApi,
+  AUTH_EXPIRED_EVENT,
   clearAdminSession,
   clearLeadsOnApi,
   deleteLeadOnApi,
@@ -61,7 +62,16 @@ export function SiteProvider({ children }) {
             if (active) setData({ ...loadSiteData(), ...remote, adminPassword: loadSiteData().adminPassword, telegram: loadSiteData().telegram });
           }
         } catch {
-          if (active) setData(loadSiteData());
+          if (active) {
+            setIsAdmin(false);
+            setSubmissions([]);
+            try {
+              const remote = await fetchSiteDataFromApi();
+              setData({ ...loadSiteData(), ...remote, adminPassword: loadSiteData().adminPassword, telegram: loadSiteData().telegram });
+            } catch {
+              setData(loadSiteData());
+            }
+          }
         }
       } else {
         setData(loadSiteData());
@@ -83,6 +93,15 @@ export function SiteProvider({ children }) {
       .then(setSubmissions)
       .catch(() => setSubmissions([]));
   }, [ready, useApi, isAdmin]);
+
+  useEffect(() => {
+    function onAuthExpired() {
+      setIsAdmin(false);
+      setSubmissions([]);
+    }
+    window.addEventListener(AUTH_EXPIRED_EVENT, onAuthExpired);
+    return () => window.removeEventListener(AUTH_EXPIRED_EVENT, onAuthExpired);
+  }, []);
 
   const value = useMemo(
     () => ({
@@ -189,7 +208,11 @@ export function SiteProvider({ children }) {
       testTelegram: async (telegram) => {
         if (!useApi) throw new Error("Telegram работает только на сервере (Railway)");
         const result = await testTelegramConnection(telegram);
-        setData((prev) => ({ ...prev, telegram: result.telegram }));
+        setData((prev) => {
+          const next = { ...prev, telegram: result.telegram };
+          saveSiteData(next);
+          return next;
+        });
         return result;
       },
       getTelegramStatus: async () => {

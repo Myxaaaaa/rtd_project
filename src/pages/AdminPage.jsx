@@ -457,7 +457,7 @@ function TelegramTab({ draft, setDraft, useApi }) {
         {err && <div className="adm-alert adm-alert-warn">{err}</div>}
         <p style={{ marginTop: 16, fontSize: 13, color: "var(--adm-muted)" }}>
           После связки каждая новая заявка с сайта автоматически приходит в ваш Telegram.
-          Не забудьте нажать «Сохранить» после изменений.
+          Кнопка «Связать Telegram» сохраняет настройки на сервере — отдельно «Сохранить» для этого не нужно.
         </p>
       </div>
     </>

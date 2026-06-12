@@ -6,8 +6,14 @@ function adminHeaders() {
   return password ? { "X-Admin-Password": password } : {};
 }
 
+export const AUTH_EXPIRED_EVENT = "lifegift:auth-expired";
+
 async function parseJson(res) {
   const data = await res.json().catch(() => ({}));
+  if (res.status === 401 && hasAdminSession()) {
+    clearAdminSession();
+    window.dispatchEvent(new Event(AUTH_EXPIRED_EVENT));
+  }
   if (!res.ok) throw new Error(data.error || res.statusText);
   return data;
 }
