@@ -372,15 +372,11 @@ function TelegramTab({ draft, setDraft, useApi }) {
       setErr("Заполните Bot Token");
       return;
     }
-    if (!tg.chatId?.trim() && !status?.connected) {
-      setErr("Заполните Chat ID");
-      return;
-    }
     setLoading(true);
     try {
-      await testTelegram(tg);
+      const result = await testTelegram(tg);
+      setTg({ enabled: true, chatId: result.telegram?.chatId || tg.chatId });
       setMsg("Telegram успешно связан! Тестовое сообщение отправлено.");
-      setTg({ enabled: true });
       setStatus(await getTelegramStatus());
     } catch (e) {
       setErr(e.message || "Ошибка связи с Telegram");
@@ -412,9 +408,9 @@ function TelegramTab({ draft, setDraft, useApi }) {
         <h3>Как подключить</h3>
         <ol className="adm-tg-steps">
           <li>Откройте <strong>@BotFather</strong> в Telegram → /newbot → скопируйте <strong>Bot Token</strong></li>
-          <li>Напишите вашему боту любое сообщение или добавьте его в группу</li>
-          <li>Откройте <code>https://api.telegram.org/bot&lt;TOKEN&gt;/getUpdates</code> и найдите <strong>chat.id</strong></li>
-          <li>Вставьте Token и Chat ID ниже → нажмите «Связать Telegram»</li>
+          <li>Найдите вашего бота в Telegram и напишите ему <strong>/start</strong> (или добавьте бота в группу)</li>
+          <li>Вставьте Token ниже и нажмите «Связать Telegram» — Chat ID подставится автоматически</li>
+          <li>Если нужно вручную: откройте <code>getUpdates</code> и возьмите <strong>message.chat.id</strong>, не id бота из getMe</li>
         </ol>
       </div>
 
@@ -431,11 +427,11 @@ function TelegramTab({ draft, setDraft, useApi }) {
           />
         </div>
         <div className="adm-field">
-          <label>Chat ID</label>
+          <label>Chat ID <span style={{ fontWeight: 400, color: "var(--adm-muted)" }}>(необязательно)</span></label>
           <input
             value={tg.chatId || ""}
             onChange={(e) => setTg({ chatId: e.target.value })}
-            placeholder="-1001234567890 или 123456789"
+            placeholder="Подставится автоматически после /start боту"
           />
         </div>
         <label className="adm-toggle" style={{ marginBottom: 16 }}>
