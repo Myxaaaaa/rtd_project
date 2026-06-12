@@ -12,7 +12,7 @@ import {
   saveSiteData,
   verifyAdminPassword,
 } from "./storage.js";
-import { notifyLeadTelegram, sendTelegramMessage } from "./telegram.js";
+import { mergeTelegramSettings, notifyLeadTelegram, sendTelegramMessage } from "./telegram.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
@@ -112,7 +112,7 @@ app.get("/api/telegram/status", requireAdmin, (_req, res) => {
 app.post("/api/telegram/test", requireAdmin, async (req, res) => {
   try {
     const site = getSiteData();
-    const telegram = { ...site.telegram, ...req.body?.telegram };
+    const telegram = mergeTelegramSettings(site.telegram, req.body?.telegram);
     await sendTelegramMessage(
       telegram.botToken,
       telegram.chatId,

@@ -368,8 +368,12 @@ function TelegramTab({ draft, setDraft, useApi }) {
       setErr("Telegram работает только на сервере (Railway). Локально заявки сохраняются в браузере.");
       return;
     }
-    if (!tg.botToken?.trim() || !tg.chatId?.trim()) {
-      setErr("Заполните Bot Token и Chat ID");
+    if (!tg.botToken?.trim() && !status?.hasToken) {
+      setErr("Заполните Bot Token");
+      return;
+    }
+    if (!tg.chatId?.trim() && !status?.connected) {
+      setErr("Заполните Chat ID");
       return;
     }
     setLoading(true);
@@ -422,7 +426,7 @@ function TelegramTab({ draft, setDraft, useApi }) {
             type="password"
             value={tg.botToken || ""}
             onChange={(e) => setTg({ botToken: e.target.value })}
-            placeholder="123456789:ABCdefGHI..."
+            placeholder={status?.hasToken ? "Токен сохранён на сервере — введите только для замены" : "123456789:ABCdefGHI..."}
             autoComplete="off"
           />
         </div>
