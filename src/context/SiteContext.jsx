@@ -38,7 +38,7 @@ export function SiteProvider({ children }) {
   const [submissions, setSubmissions] = useState([]);
   const [isAdmin, setIsAdmin] = useState(hasAdminSession);
   const [useApi, setUseApi] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(true);
 
   useEffect(() => {
     applyTheme(data.theme);
@@ -222,15 +222,6 @@ export function SiteProvider({ children }) {
     }),
     [data, submissions, isAdmin, ready, useApi]
   );
-
-  if (!ready) {
-    return (
-      <div className="lg-loader">
-        <div className="lg-loader-mark">LG</div>
-        <p>LifeGift</p>
-      </div>
-    );
-  }
 
   return <SiteContext.Provider value={value}>{children}</SiteContext.Provider>;
 }

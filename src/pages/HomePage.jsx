@@ -283,7 +283,7 @@ export default function HomePage() {
 
       {toast && <div className="toast">{toast}</div>}
 
-      <WhatsAppWidget whatsapp={data.whatsapp} lang={lang} />
+      <WhatsAppWidget whatsapp={data.whatsapp} />
     </>
   );
 }

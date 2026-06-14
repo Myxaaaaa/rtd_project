@@ -1,7 +1,3 @@
-import { useEffect, useState } from "react";
-
-const HINT_KEY = "rtd_wa_hint_seen";
-
 function waDigits(phone) {
   return String(phone || "").replace(/\D/g, "");
 }
@@ -14,52 +10,20 @@ function WhatsAppIcon() {
   );
 }
 
-export default function WhatsAppWidget({ whatsapp, lang }) {
-  const [showHint, setShowHint] = useState(false);
-
+export default function WhatsAppWidget({ whatsapp }) {
   const digits = waDigits(whatsapp?.phone);
   const enabled = whatsapp?.enabled !== false && digits.length >= 9;
-  const hint = lang === "kg" ? whatsapp?.hintKg : whatsapp?.hintRu;
-  const waUrl = `https://wa.me/${digits}`;
-
-  useEffect(() => {
-    if (!enabled) return;
-    try {
-      if (!localStorage.getItem(HINT_KEY)) setShowHint(true);
-    } catch (_) {
-      setShowHint(true);
-    }
-  }, [enabled]);
-
-  function dismissHint() {
-    try {
-      localStorage.setItem(HINT_KEY, "1");
-    } catch (_) {}
-    setShowHint(false);
-  }
 
   if (!enabled) return null;
 
   return (
     <div className="wa-widget">
-      {showHint && hint && (
-        <div className="wa-hint">
-          <button type="button" className="wa-hint-close" onClick={dismissHint} aria-label="Закрыть">
-            ×
-          </button>
-          <p>{hint}</p>
-          <a className="wa-hint-phone" href={waUrl} target="_blank" rel="noopener noreferrer">
-            {whatsapp.phone}
-          </a>
-        </div>
-      )}
       <a
         className="wa-btn"
-        href={waUrl}
+        href={`https://wa.me/${digits}`}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="WhatsApp"
-        onClick={dismissHint}
       >
         <WhatsAppIcon />
       </a>
